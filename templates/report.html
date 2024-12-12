@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .stats {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .stats p {
+            margin: 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        .no-results {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: #666;
+        }
+
+        td:last-child, th:last-child {
+            text-align: right;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        {% if report_type == 'price' %}
+            Report for Books Priced ${{ "%.2f"|format(request.form.get('min_price')|float) }} - ${{ "%.2f"|format(request.form.get('max_price')|float) }}
+        {% elif report_type == 'company' %}
+            Report for Company: {{ request.form.get('company') }}
+        {% elif report_type == 'age' %}
+            Report for Authors Age {{ request.form.get('min_age') }}+
+        {% elif report_type == 'date' %}
+            Report for Books Published Between {{ request.form.get('start_date') }} and {{ request.form.get('end_date') }}
+        {% else %}
+            Report
+        {% endif %}
+    </h1>
+    
+    {% if books %}
+    <table>
+        <tr>
+            <th>Book ID</th>
+            <th>Title</th>
+            <th>Genre</th>
+            <th>Author</th>
+            <th>Price</th>
+            {% if report_type == 'date' %}
+            <th>Publish Date</th>
+            {% endif %}
+        </tr>
+        {% for book in books %}
+        <tr>
+            <td>{{ book.book_id }}</td>
+            <td>{{ book.title }}</td>
+            <td>{{ book.genre }}</td>
+            <td>{{ book.author_name }}</td>
+            <td>${{ "%.1f"|format(book.price) }}</td>
+            {% if report_type == 'date' %}
+            <td>{{ book.publish_date }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="stats">
+        {% if stats %}
+            <p>Average Price: ${{ "%.2f"|format(stats.avg_price) }}</p>
+            <p>Maximum Price: ${{ "%.2f"|format(stats.max_price) }}</p>
+            <p>Minimum Price: ${{ "%.2f"|format(stats.min_price) }}</p>
+            {% if report_type == 'date' %}
+            <p>Total Books: {{ stats.book_count }}</p>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="no-results">
+        <p>No books found matching the criteria.</p>
+    </div>
+    {% endif %}
+
+    <a href="{{ url_for('book_report') }}" class="back-button">Back to Report Form</a>
+</body>
+</html>
