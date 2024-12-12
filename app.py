@@ -5,6 +5,7 @@ from datetime import datetime
 from sqlalchemy import func, text
 from sqlalchemy.exc import IntegrityError
 from functools import wraps
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
@@ -372,4 +373,4 @@ def report_by_date():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
