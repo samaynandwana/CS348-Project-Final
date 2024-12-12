@@ -13,6 +13,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = "supersecretkey"
 db.init_app(app)
 
+with app.app_context():
+    db.create_all()
+
 def handle_transaction(endpoint_name=None):
     """Decorator to handle database transactions with proper isolation level"""
     def decorator(func):
@@ -371,6 +374,4 @@ def report_by_date():
         return redirect(url_for('book_report'))
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
